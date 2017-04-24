@@ -23,8 +23,10 @@ int do_command(char *str) {
             if (contains(cmd, "<")) {
                 shyamtok(cmd, "<", 1, file);
                 tmp = lstrip(file);
-                close(0);
+//                close(0);
                 tmpfd = open(tmp, O_RDONLY);
+                dup2(tmpfd, 0);
+//                close(tmpfd);
                 shyamtok(cmd, "<", 0, cmd);
             }
             exec(cmd);
@@ -55,8 +57,8 @@ int do_pipe(char *cmdline, int *pd) {
                     //Reader
                     close(lpd[1]);
                     dup2(lpd[0], 0);
-                    close(lpd[0]);
-                    pid = wait(&status);
+//                    close(lpd[0]);
+//                    pid = wait(&status);
                     do_command(tail);
                 } else {
                     do_pipe(head, lpd);
