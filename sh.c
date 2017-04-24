@@ -22,6 +22,7 @@ main(int argc, char *argv[]) {
                 chdir(args);
             }
             pwd();
+            continue;
         }
         if (strcmp(program, "logout") == 0) {
             break;
@@ -30,6 +31,13 @@ main(int argc, char *argv[]) {
         //Other shit
         //First no pipes
         //See if we can just get a child to execute cat
+        pid = fork();
+        if (pid) {
+            //Parent
+            pid = wait(&status);
+        } else {
+            exec(cmd);
+        }
 
     }
 }
