@@ -43,8 +43,17 @@ main(int argc, char *argv[]) {
                 tmp = lstrip(file);
                 tmpfd = open(tmp, O_WRONLY | O_CREAT);
                 dup2(tmpfd, 1);
-                shyamtok(cmd, ">", 0, program);
-                exec(program);
+                shyamtok(cmd, ">", 0, cmd);
+                //exec(program);
+            }
+            if (contains(cmd, "<")) {
+                shyamtok(cmd, "<", 1, file);
+                tmp = lstrip(file);
+                close(0);
+                tmpfd = open(tmp, O_RDONLY);
+                //dup2(tmpfd, 0);
+                shyamtok(cmd, "<", 0, cmd);
+                //exec(program);
             }
             exec(cmd);
         }
