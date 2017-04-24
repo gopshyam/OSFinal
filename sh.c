@@ -35,11 +35,14 @@ main(int argc, char *argv[]) {
     char program[64];
     char args[64];
     char file[64];
-    char path[64];
+    char head[64];
+    char tail[64];
     char *tmp;
     int pid;
     int status;
     int tmpfd;
+    int pd[2];
+    int lpd[2];
 
     while(1) {
         write(1, "Shy:$ ", 7);
@@ -67,8 +70,49 @@ main(int argc, char *argv[]) {
         } else {
             //Child
             //case 1: Redirect to file
-            do_command(cmd);
+            if (scan(cmd, head, tail)) {
+                //cmd has pipe
+                if(pipe(lpd)) {
+                    printf("SUCCESS\n");
+                }
+                pid = fork();
+                if (pid) {
+                    //Parent child
+                    //Reader
+                    close(lpd[1]);
+                    dup2(lpd[0], 0);
+                    close(lpd[0]);
+                    pid = wait(&status);
+                    do_command(tail);
+                } else {
+                    close(lpd[0]);
+                    dup2(lpd[1], 1);
+                    close(lpd[1]);
+                    do_command(head);
+                }
+            } else {
+                do_command(cmd);
+            }
         }
 
     }
+}
+
+
+int scan(char *cmdline, char *head, char *tail) {
+    int l;
+
+    if (!contains(cmdline, "|")) {
+        return 0;
+    }
+    l = strlen(cmdline) - 1;
+    while(l >= 0) {
+        if(cmdline[l] == '|') {
+            break;
+        }
+        l--;
+    }
+    strcpy(head, cmdline);
+    head[l] = 0;
+    strcpy(tail, cmdline + l + 1);
 }

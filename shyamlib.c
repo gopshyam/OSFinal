@@ -27,9 +27,9 @@ int readline(int in, int out, char *str) {
             str[i] = 0;
             return -1;
         }
-        if(tmp == '\r') {
-            tmp = '\n';
-        }
+//        if(tmp == '\r') {
+//            tmp = '\n';
+//        }
         if(out) {
             write(out, &tmp, 1);
         }
