@@ -5,8 +5,12 @@ main(int argc, char *argv[]) {
     char cmd[64];
     char program[64];
     char args[64];
+    char file[64];
+    char path[64];
+    char *tmp;
     int pid;
     int status;
+    int tmpfd;
 
     while(1) {
         write(1, "Shy:$ ", 7);
@@ -14,7 +18,6 @@ main(int argc, char *argv[]) {
         write(1, "\n", 1);
         shyamtok(cmd, " ", 0, program);
         shyamtok(cmd, " ", 1, args);
-
 
         //Default programs
         if (strcmp(program, "cd") == 0) {
@@ -28,14 +31,21 @@ main(int argc, char *argv[]) {
             break;
         }
 
-        //Other shit
-        //First no pipes
-        //See if we can just get a child to execute cat
         pid = fork();
         if (pid) {
             //Parent
             pid = wait(&status);
         } else {
+            //Child
+            //case 1: Redirect to file
+            if (contains(cmd, ">")) {
+                shyamtok(cmd, ">", 1, file);
+                tmp = lstrip(file);
+                tmpfd = open(tmp, O_WRONLY | O_CREAT);
+                dup2(tmpfd, 1);
+                shyamtok(cmd, ">", 0, program);
+                exec(program);
+            }
             exec(cmd);
         }
 
