@@ -5,6 +5,7 @@ int in, out, err;
 
 main(int argc, char *argv[]){
     char str[64];
+    char tmpstr[64];
     char username[64];
     char password[64];
     char actual_password[64];
@@ -27,7 +28,6 @@ main(int argc, char *argv[]){
         write(out, "\nPassword:", 10);
         readline(in, out, password);
         
-
         fd = open("/etc/passwd", O_RDONLY);
         while(1) {
             if(readline(fd, 0, str) < 1) {
@@ -36,7 +36,8 @@ main(int argc, char *argv[]){
             if (str == 0) {
                 break;
             }
-            if (strcmp(username, strtok(str, ":")) == 0) {
+            strcpy(tmpstr, str);
+            if (strcmp(username, strtok(tmpstr, ":")) == 0) {
                 shyamtok(str, ":", 1, actual_password);
                 printf("%s\n", actual_password);
                 if (strcmp(password, actual_password) != 0) {

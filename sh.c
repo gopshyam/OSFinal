@@ -1,6 +1,35 @@
 #include "ucode.c"
 #include "shyamlib.c"
 
+int do_command(char *str) {
+
+    char *cmd = str;
+    char file[64];
+    char *tmp;
+    int tmpfd;
+
+
+            if (contains(cmd, ">")) {
+                shyamtok(cmd, ">", 1, file);
+                tmp = lstrip(file);
+                if (contains(cmd, ">>")) {
+                    tmpfd = open(tmp, O_WRONLY | O_APPEND);
+                } else {
+                    tmpfd = open(tmp, O_WRONLY | O_CREAT);
+                }
+                dup2(tmpfd, 1);
+                shyamtok(cmd, ">", 0, cmd);
+            }
+            if (contains(cmd, "<")) {
+                shyamtok(cmd, "<", 1, file);
+                tmp = lstrip(file);
+                close(0);
+                tmpfd = open(tmp, O_RDONLY);
+                shyamtok(cmd, "<", 0, cmd);
+            }
+            exec(cmd);
+}
+
 main(int argc, char *argv[]) {
     char cmd[64];
     char program[64];
@@ -38,24 +67,7 @@ main(int argc, char *argv[]) {
         } else {
             //Child
             //case 1: Redirect to file
-            if (contains(cmd, ">")) {
-                shyamtok(cmd, ">", 1, file);
-                tmp = lstrip(file);
-                tmpfd = open(tmp, O_WRONLY | O_CREAT);
-                dup2(tmpfd, 1);
-                shyamtok(cmd, ">", 0, cmd);
-                //exec(program);
-            }
-            if (contains(cmd, "<")) {
-                shyamtok(cmd, "<", 1, file);
-                tmp = lstrip(file);
-                close(0);
-                tmpfd = open(tmp, O_RDONLY);
-                //dup2(tmpfd, 0);
-                shyamtok(cmd, "<", 0, cmd);
-                //exec(program);
-            }
-            exec(cmd);
+            do_command(cmd);
         }
 
     }

@@ -1,6 +1,6 @@
 int shyamtok(char *str, char *delim, int index, char *output) {
     int i = 0;
-    char *pch;
+    char pch[64];
     char *tmpstr;
     char cpstr[64];
 
@@ -8,10 +8,10 @@ int shyamtok(char *str, char *delim, int index, char *output) {
 
     tmpstr = cpstr;
 
-    pch = strtok(tmpstr, delim);
+    strcpy(pch, strtok(tmpstr, delim));
     while(i < index) {
         tmpstr += strlen(pch) + 1;
-        pch = strtok(tmpstr, delim);
+        strcpy(pch, strtok(tmpstr, delim));
         i++;
     }
     strcpy(output, pch);
@@ -28,10 +28,14 @@ int readline(int in, int out, char *str) {
             return -1;
         }
         if(tmp == '\r') {
-            tmp == '\n';
+            tmp = '\n';
         }
         if(out) {
             write(out, &tmp, 1);
+        }
+        if(tmp == '\b') {
+            i--;
+            continue;
         }
         str[i++] = tmp;
         if(tmp == '\r' || tmp == '\n') {
