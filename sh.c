@@ -19,13 +19,12 @@ int do_command(char *str) {
                 }
                 dup2(tmpfd, 1);
                 shyamtok(cmd, ">", 0, cmd);
-            }
-            if (contains(cmd, "<")) {
+            } else if (contains(cmd, "<")) {
                 shyamtok(cmd, "<", 1, file);
                 tmp = lstrip(file);
 //                close(0);
-//                tmpfd = open(tmp, O_RDONLY);
-//                dup2(tmpfd, 0);
+                tmpfd = open(tmp, O_RDONLY);
+                dup2(tmpfd, 0);
 //                close(tmpfd);
                 shyamtok(cmd, "<", 0, cmd);
                 strcat(cmd, file);

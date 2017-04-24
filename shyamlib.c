@@ -38,7 +38,7 @@ int readline(int in, int out, char *str) {
             continue;
         }
         str[i++] = tmp;
-        if(tmp == '\r' || tmp == '\n') {
+        if(tmp == '\r' || tmp == '\n' || tmp == '\04') {
             break;
         }
     }
