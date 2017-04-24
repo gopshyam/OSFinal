@@ -39,6 +39,12 @@ int do_pipe(char *cmdline, int *pd) {
     int pid;
 
     strcpy(cmd, cmdline);
+    
+            if(pd) {
+                close(pd[0]);
+                dup2(pd[1], 1);
+                close(pd[1]);
+            }
 
             if (scan(cmd, head, tail)) {
                 //cmd has pipe
@@ -53,10 +59,7 @@ int do_pipe(char *cmdline, int *pd) {
                     pid = wait(&status);
                     do_command(tail);
                 } else {
-                    close(lpd[0]);
-                    dup2(lpd[1], 1);
-                    close(lpd[1]);
-                    do_command(head);
+                    do_pipe(head, lpd);
                 }
             } else {
                 do_command(cmd);
