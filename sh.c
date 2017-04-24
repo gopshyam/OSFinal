@@ -30,6 +30,40 @@ int do_command(char *str) {
             exec(cmd);
 }
 
+int do_pipe(char *cmdline, int *pd) {
+    char cmd[64];
+    char head[64];
+    char tail[64];
+    int lpd[2];
+    int status;
+    int pid;
+
+    strcpy(cmd, cmdline);
+
+            if (scan(cmd, head, tail)) {
+                //cmd has pipe
+                pipe(lpd); 
+                pid = fork();
+                if (pid) {
+                    //Parent child
+                    //Reader
+                    close(lpd[1]);
+                    dup2(lpd[0], 0);
+                    close(lpd[0]);
+                    pid = wait(&status);
+                    do_command(tail);
+                } else {
+                    close(lpd[0]);
+                    dup2(lpd[1], 1);
+                    close(lpd[1]);
+                    do_command(head);
+                }
+            } else {
+                do_command(cmd);
+            }
+}
+
+
 main(int argc, char *argv[]) {
     char cmd[64];
     char program[64];
@@ -69,30 +103,7 @@ main(int argc, char *argv[]) {
             pid = wait(&status);
         } else {
             //Child
-            //case 1: Redirect to file
-            if (scan(cmd, head, tail)) {
-                //cmd has pipe
-                if(pipe(lpd)) {
-                    printf("SUCCESS\n");
-                }
-                pid = fork();
-                if (pid) {
-                    //Parent child
-                    //Reader
-                    close(lpd[1]);
-                    dup2(lpd[0], 0);
-                    close(lpd[0]);
-                    pid = wait(&status);
-                    do_command(tail);
-                } else {
-                    close(lpd[0]);
-                    dup2(lpd[1], 1);
-                    close(lpd[1]);
-                    do_command(head);
-                }
-            } else {
-                do_command(cmd);
-            }
+            do_pipe(cmd, 0); 
         }
 
     }
